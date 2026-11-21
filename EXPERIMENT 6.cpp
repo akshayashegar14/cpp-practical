@@ -1,36 +1,33 @@
 
 #include <iostream>
 #include <memory>
-#include <string>
 using namespace std;
 
 // Resource Class
 class Resource
 {
 private:
-    string resourceName;
+    string name;
 
 public:
-    Resource(string name)
+    Resource(string n)
     {
-        resourceName = name;
-        cout << "[+] " << resourceName
-             << " initialized successfully!" << endl;
+        name = n;
+        cout << name << " Resource Created!" << endl;
     }
 
     ~Resource()
     {
-        cout << "[-] " << resourceName
-             << " released from memory!" << endl;
+        cout << name << " Resource Destroyed!" << endl;
     }
 
     void use()
     {
-        cout << "Using resource: " << resourceName << endl;
+        cout << "Using Resource: " << name << endl;
     }
 };
 
-// Manual Smart Pointer using RAII
+// Manual Smart Pointer
 class MySmartPointer
 {
 private:
@@ -40,13 +37,13 @@ public:
     MySmartPointer(Resource* p)
     {
         ptr = p;
-        cout << "Manual smart pointer created!" << endl;
+        cout << "Manual Smart Pointer Initialized" << endl;
     }
 
     ~MySmartPointer()
     {
         delete ptr;
-        cout << "Manual smart pointer destroyed!" << endl;
+        cout << "Manual Smart Pointer Released" << endl;
     }
 
     Resource* operator->()
@@ -54,61 +51,46 @@ public:
         return ptr;
     }
 
-    // Prevent copying
     MySmartPointer(const MySmartPointer&) = delete;
-
     MySmartPointer& operator=(const MySmartPointer&) = delete;
 };
 
 int main()
 {
-    cout << "======================================" << endl;
-    cout << "       SMART RESOURCE MANAGER         " << endl;
-    cout << "======================================" << endl;
+    cout << "===== SMART POINTER DEMONSTRATION =====" << endl;
 
-    // Manual RAII Smart Pointer
-    cout << "\n--- 1. MANUAL SMART POINTER ---" << endl;
+    // Manual RAII
+    cout << "\n1. MANUAL SMART POINTER" << endl;
     {
-        MySmartPointer smartPtr(new Resource("Database Connection"));
-        smartPtr->use();
+        MySmartPointer p(new Resource("File"));
+        p->use();
     }
 
     // Unique Pointer
-    cout << "\n--- 2. UNIQUE POINTER ---" << endl;
+    cout << "\n2. UNIQUE POINTER" << endl;
     {
-        unique_ptr<Resource> uniquePtr =
-            make_unique<Resource>("File Management System");
+        unique_ptr<Resource> p =
+            make_unique<Resource>("Database");
 
-        uniquePtr->use();
-
-        cout << "Unique pointer owns the resource exclusively." << endl;
+        p->use();
+        cout << "Unique Pointer owns the resource exclusively" << endl;
     }
 
     // Shared Pointer
-    cout << "\n--- 3. SHARED POINTER ---" << endl;
+    cout << "\n3. SHARED POINTER" << endl;
     {
-        shared_ptr<Resource> sharedPtr1 =
-            make_shared<Resource>("Cloud Storage");
+        shared_ptr<Resource> p1 =
+            make_shared<Resource>("Network");
 
-        cout << "Initial Reference Count: "
-             << sharedPtr1.use_count() << endl;
+        shared_ptr<Resource> p2 = p1;
 
-        {
-            shared_ptr<Resource> sharedPtr2 = sharedPtr1;
+        p1->use();
 
-            cout << "After sharing: "
-                 << sharedPtr1.use_count() << endl;
-
-            sharedPtr1->use();
-        }
-
-        cout << "After second pointer is destroyed: "
-             << sharedPtr1.use_count() << endl;
+        cout << "Number of owners: "
+             << p1.use_count() << endl;
     }
 
-    cout << "\n======================================" << endl;
-    cout << "    ALL RESOURCES RELEASED SAFELY     " << endl;
-    cout << "======================================" << endl;
+    cout << "\n===== PROGRAM EXECUTION COMPLETED =====" << endl;
 
     return 0;
 }
